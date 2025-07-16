@@ -233,33 +233,38 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            display: none;
+            display: flex; /* Always show for testing */
             z-index: 10;
             pointer-events: auto;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 15px;
         }
 
         .control-joystick {
             width: 120px;
             height: 120px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(76, 175, 80, 0.8);
             border-radius: 50%;
             position: relative;
             margin: 0 20px;
             touch-action: none;
+            cursor: pointer;
         }
 
         .joystick-knob {
             width: 40px;
             height: 40px;
-            background: rgba(76, 175, 80, 0.8);
+            background: rgba(76, 175, 80, 0.9);
             border: 2px solid #4CAF50;
             border-radius: 50%;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            transition: all 0.1s ease;
+            transition: none; /* Remove transition for better responsiveness */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .control-buttons {
@@ -270,7 +275,7 @@
         }
 
         .control-btn {
-            background: rgba(76, 175, 80, 0.3);
+            background: rgba(76, 175, 80, 0.4);
             border: 2px solid #4CAF50;
             color: white;
             width: 60px;
@@ -285,11 +290,16 @@
             user-select: none;
             touch-action: manipulation;
             transition: all 0.1s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .control-btn:active {
+            background: rgba(76, 175, 80, 0.8);
+            transform: scale(0.9);
+        }
+
+        .control-btn:hover {
             background: rgba(76, 175, 80, 0.6);
-            transform: scale(0.95);
         }
 
         .controls-layout {
@@ -614,8 +624,14 @@
 
         // Touch event handlers for mobile controls
         function initMobileControls() {
+            console.log('Initializing mobile controls...');
+            
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                             (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+            
+            console.log('Is mobile device:', isMobile);
+            console.log('Touch points:', navigator.maxTouchPoints);
+            console.log('User agent:', navigator.userAgent);
             
             if (isMobile) {
                 // Show mobile controls info in start screen
@@ -624,13 +640,22 @@
                 if (mobileInfo && desktopControls) {
                     mobileInfo.style.display = 'block';
                     desktopControls.style.display = 'none';
+                    console.log('Switched to mobile controls info');
                 }
                 
                 // Show mobile controls during gameplay
                 const mobileControlsDiv = document.getElementById('mobile-controls');
                 if (mobileControlsDiv) {
                     mobileControlsDiv.style.display = 'flex';
+                    console.log('Mobile controls div made visible');
                 }
+            }
+
+            // Always initialize controls for testing (remove this line in production)
+            const mobileControlsDiv = document.getElementById('mobile-controls');
+            if (mobileControlsDiv) {
+                mobileControlsDiv.style.display = 'flex';
+                console.log('Mobile controls forced visible for testing');
             }
 
             // Joystick setup
@@ -638,10 +663,11 @@
             const knob = document.getElementById('movement-knob');
             
             if (!joystick || !knob) {
-                console.warn('Mobile controls elements not found');
+                console.error('Mobile controls elements not found:', { joystick, knob });
                 return;
             }
             
+            console.log('Joystick and knob elements found');
             mobileControls.joystick.element = joystick;
             mobileControls.joystick.knob = knob;
 
@@ -649,35 +675,102 @@
             joystick.addEventListener('touchstart', handleJoystickStart, { passive: false });
             joystick.addEventListener('touchmove', handleJoystickMove, { passive: false });
             joystick.addEventListener('touchend', handleJoystickEnd, { passive: false });
+            
+            // Add mouse events as fallback for testing
+            joystick.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                const fakeTouch = { clientX: e.clientX, clientY: e.clientY };
+                const fakeEvent = { preventDefault: () => {}, stopPropagation: () => {}, touches: [fakeTouch] };
+                handleJoystickStart(fakeEvent);
+                
+                const handleMouseMove = (e) => {
+                    const fakeTouch = { clientX: e.clientX, clientY: e.clientY };
+                    const fakeEvent = { preventDefault: () => {}, stopPropagation: () => {}, touches: [fakeTouch] };
+                    handleJoystickMove(fakeEvent);
+                };
+                
+                const handleMouseUp = (e) => {
+                    const fakeEvent = { preventDefault: () => {}, stopPropagation: () => {} };
+                    handleJoystickEnd(fakeEvent);
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+            });
 
-            // Button touch events
+            // Button touch events with improved handling
             const buttons = {
-                'up-btn': () => { mobileControls.buttons.up = true; keys.e = true; },
-                'down-btn': () => { mobileControls.buttons.down = true; keys.shift = true; },
-                'boost-btn': () => { mobileControls.buttons.boost = true; keys.space = true; },
-                'stabilize-btn': () => { mobileControls.buttons.stabilize = true; keys.q = true; }
+                'up-btn': () => { 
+                    console.log('🔼 UP button pressed - Setting keys.e = true');
+                    mobileControls.buttons.up = true; 
+                    keys.e = true; 
+                },
+                'down-btn': () => { 
+                    console.log('🔽 DOWN button pressed - Setting keys.shift = true');
+                    mobileControls.buttons.down = true; 
+                    keys.shift = true; 
+                },
+                'boost-btn': () => { 
+                    console.log('⚡ BOOST button pressed - Setting keys.space = true');
+                    mobileControls.buttons.boost = true; 
+                    keys.space = true; 
+                },
+                'stabilize-btn': () => { 
+                    console.log('🛑 STABILIZE button pressed - Setting keys.q = true');
+                    mobileControls.buttons.stabilize = true; 
+                    keys.q = true; 
+                }
+            };
+
+            const resetAllButtons = () => {
+                console.log('🔄 Resetting all button states');
+                mobileControls.buttons.up = false;
+                mobileControls.buttons.down = false;
+                mobileControls.buttons.boost = false;
+                mobileControls.buttons.stabilize = false;
+                keys.e = false;
+                keys.shift = false;
+                keys.space = false;
+                keys.q = false;
             };
 
             Object.keys(buttons).forEach(id => {
                 const btn = document.getElementById(id);
                 if (btn) {
+                    // Touch events
                     btn.addEventListener('touchstart', (e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         buttons[id]();
+                        btn.style.transform = 'scale(0.9)';
                     }, { passive: false });
                     
                     btn.addEventListener('touchend', (e) => {
                         e.preventDefault();
-                        // Reset all button states
-                        mobileControls.buttons.up = false;
-                        mobileControls.buttons.down = false;
-                        mobileControls.buttons.boost = false;
-                        mobileControls.buttons.stabilize = false;
-                        keys.e = false;
-                        keys.shift = false;
-                        keys.space = false;
-                        keys.q = false;
+                        e.stopPropagation();
+                        resetAllButtons();
+                        btn.style.transform = 'scale(1)';
                     }, { passive: false });
+                    
+                    // Mouse events as fallback
+                    btn.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        buttons[id]();
+                        btn.style.transform = 'scale(0.9)';
+                    });
+                    
+                    btn.addEventListener('mouseup', (e) => {
+                        e.preventDefault();
+                        resetAllButtons();
+                        btn.style.transform = 'scale(1)';
+                    });
+                    
+                    btn.addEventListener('mouseleave', (e) => {
+                        resetAllButtons();
+                        btn.style.transform = 'scale(1)';
+                    });
                 } else {
                     console.warn(`Mobile control button ${id} not found`);
                 }
@@ -686,6 +779,8 @@
 
         function handleJoystickStart(e) {
             e.preventDefault();
+            e.stopPropagation();
+            
             const touch = e.touches[0];
             const rect = mobileControls.joystick.element.getBoundingClientRect();
             
@@ -695,12 +790,16 @@
             mobileControls.joystick.currentX = touch.clientX;
             mobileControls.joystick.currentY = touch.clientY;
             
+            // Visual feedback
+            mobileControls.joystick.element.style.opacity = '0.8';
+            
             updateJoystickPosition();
         }
 
         function handleJoystickMove(e) {
             if (!mobileControls.joystick.active) return;
             e.preventDefault();
+            e.stopPropagation();
             
             const touch = e.touches[0];
             mobileControls.joystick.currentX = touch.clientX;
@@ -712,10 +811,17 @@
 
         function handleJoystickEnd(e) {
             e.preventDefault();
+            e.stopPropagation();
+            
             mobileControls.joystick.active = false;
             
+            // Visual feedback
+            mobileControls.joystick.element.style.opacity = '1';
+            
             // Reset joystick position
-            mobileControls.joystick.knob.style.transform = 'translate(-50%, -50%)';
+            if (mobileControls.joystick.knob) {
+                mobileControls.joystick.knob.style.transform = 'translate(-50%, -50%)';
+            }
             
             // Reset movement keys
             keys.w = false;
@@ -725,6 +831,8 @@
         }
 
         function updateJoystickPosition() {
+            if (!mobileControls.joystick.knob) return;
+            
             const deltaX = mobileControls.joystick.currentX - mobileControls.joystick.startX;
             const deltaY = mobileControls.joystick.currentY - mobileControls.joystick.startY;
             
@@ -740,16 +848,17 @@
                 y = Math.sin(angle) * maxDistance;
             }
             
-            mobileControls.joystick.knob.style.transform = `translate(${x - 50}%, ${y - 50}%)`;
+            mobileControls.joystick.knob.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
         }
 
         function updateMovementFromJoystick() {
             const deltaX = mobileControls.joystick.currentX - mobileControls.joystick.startX;
             const deltaY = mobileControls.joystick.currentY - mobileControls.joystick.startY;
             
-            const threshold = 20; // Minimum distance to register movement
+            const threshold = 15; // Reduced threshold for better sensitivity
             
             // Reset all movement keys
+            const prevKeys = { w: keys.w, a: keys.a, s: keys.s, d: keys.d };
             keys.w = false;
             keys.a = false;
             keys.s = false;
@@ -757,15 +866,111 @@
             
             // Set movement keys based on joystick position
             if (Math.abs(deltaX) > threshold) {
-                if (deltaX > 0) keys.d = true;  // Right
-                else keys.a = true;  // Left
+                if (deltaX > 0) {
+                    keys.d = true;  // Right
+                    if (!prevKeys.d) console.log('🕹️ Joystick: Moving RIGHT');
+                } else {
+                    keys.a = true;  // Left
+                    if (!prevKeys.a) console.log('🕹️ Joystick: Moving LEFT');
+                }
             }
             
             if (Math.abs(deltaY) > threshold) {
-                if (deltaY > 0) keys.s = true;  // Down/Back
-                else keys.w = true;  // Up/Forward
+                if (deltaY > 0) {
+                    keys.s = true;  // Down/Back
+                    if (!prevKeys.s) console.log('🕹️ Joystick: Moving BACK');
+                } else {
+                    keys.w = true;  // Up/Forward
+                    if (!prevKeys.w) console.log('🕹️ Joystick: Moving FORWARD');
+                }
+            }
+            
+            // Log when movement stops
+            if ((prevKeys.w || prevKeys.a || prevKeys.s || prevKeys.d) && 
+                (!keys.w && !keys.a && !keys.s && !keys.d)) {
+                console.log('🕹️ Joystick: Movement STOPPED');
             }
         }
+
+        // Debug function to test controls
+        function debugControls() {
+            console.log('=== CONTROL DEBUG ===');
+            console.log('Mobile controls element:', document.getElementById('mobile-controls'));
+            console.log('Joystick element:', document.getElementById('movement-joystick'));
+            console.log('Knob element:', document.getElementById('movement-knob'));
+            console.log('Game state active:', gameState.active);
+            console.log('Keys state:', keys);
+            console.log('Mobile controls state:', mobileControls);
+            
+            // Test if elements are clickable
+            const testBtn = document.getElementById('up-btn');
+            if (testBtn) {
+                console.log('UP button found, testing click...');
+                testBtn.style.background = 'red';
+                setTimeout(() => {
+                    testBtn.style.background = '';
+                }, 1000);
+            }
+            
+            // Test touch support
+            console.log('Touch support check:');
+            console.log('- ontouchstart:', 'ontouchstart' in window);
+            console.log('- maxTouchPoints:', navigator.maxTouchPoints);
+            console.log('- Touch support:', 'ontouchstart' in window || navigator.maxTouchPoints > 0);
+        }
+
+        // Test function to manually trigger keys (for testing)
+        function testMobileControls() {
+            console.log('Testing mobile controls...');
+            
+            // Test UP button
+            console.log('Testing UP button (E key)');
+            keys.e = true;
+            setTimeout(() => { keys.e = false; console.log('UP released'); }, 2000);
+            
+            // Test movement
+            setTimeout(() => {
+                console.log('Testing FORWARD movement (W key)');
+                keys.w = true;
+                setTimeout(() => { keys.w = false; console.log('FORWARD released'); }, 2000);
+            }, 2500);
+            
+            console.log('Watch the console for key state changes and try moving the spaceship');
+        }
+
+        // Real-time key monitor
+        function startKeyMonitor() {
+            if (window.keyMonitorInterval) {
+                clearInterval(window.keyMonitorInterval);
+            }
+            
+            console.log('Starting key monitor... (will log when keys change)');
+            let lastKeyState = JSON.stringify(keys);
+            
+            window.keyMonitorInterval = setInterval(() => {
+                const currentKeyState = JSON.stringify(keys);
+                if (currentKeyState !== lastKeyState) {
+                    console.log('🎮 Keys changed:', keys);
+                    lastKeyState = currentKeyState;
+                }
+            }, 100);
+            
+            console.log('Key monitor started. Run stopKeyMonitor() to stop.');
+        }
+
+        function stopKeyMonitor() {
+            if (window.keyMonitorInterval) {
+                clearInterval(window.keyMonitorInterval);
+                window.keyMonitorInterval = null;
+                console.log('Key monitor stopped.');
+            }
+        }
+
+        // Make debug functions globally available
+        window.debugControls = debugControls;
+        window.testMobileControls = testMobileControls;
+        window.startKeyMonitor = startKeyMonitor;
+        window.stopKeyMonitor = stopKeyMonitor;
 
         // Three.js Variables
         const threeJS = {
@@ -805,7 +1010,16 @@
                 gameState.active = true;
                 gameState.startTime = Date.now();
                 gameState.fuel = CONFIG.INITIAL_FUEL;
-                showGameTip('Use E to move up and SHIFT to move down!', 5000);
+                
+                // Show appropriate tip based on device type
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                                (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+                
+                if (isMobile) {
+                    showGameTip('Use the joystick to move and buttons for up/down movement!', 5000);
+                } else {
+                    showGameTip('Use E to move up and SHIFT to move down!', 5000);
+                }
             }
         };
 
@@ -842,7 +1056,14 @@
             `;
             
             // Show initial game tip
-            showGameTip('Use E to move up and SHIFT to move down!', 5000);
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                            (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+            
+            if (isMobile) {
+                showGameTip('Use the joystick to move and buttons for up/down movement!', 5000);
+            } else {
+                showGameTip('Use E to move up and SHIFT to move down!', 5000);
+            }
         };
 
         function onWindowResize() {
