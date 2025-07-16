@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Space Explorer | Interactive 3D Journey</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -19,6 +19,13 @@
             font-family: 'Space Grotesk', sans-serif;
             color: white;
             background-color: #000;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         canvas {
@@ -219,6 +226,229 @@
             background: #4CAF50;
             border-color: #45a049;
         }
+
+        /* Mobile Controls */
+        #mobile-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        .control-joystick {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: relative;
+            margin: 0 20px;
+            touch-action: none;
+        }
+
+        .joystick-knob {
+            width: 40px;
+            height: 40px;
+            background: rgba(76, 175, 80, 0.8);
+            border: 2px solid #4CAF50;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+        }
+
+        .control-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            touch-action: manipulation;
+            transition: all 0.1s ease;
+        }
+
+        .control-btn:active {
+            background: rgba(76, 175, 80, 0.6);
+            transform: scale(0.95);
+        }
+
+        .controls-layout {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .desktop-controls {
+            display: block;
+        }
+
+        .mobile-controls-info {
+            display: none;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .screen {
+                padding: 20px;
+                overflow-y: auto;
+                height: 100vh;
+                height: 100dvh; /* Dynamic viewport height for mobile browsers */
+                justify-content: flex-start;
+                box-sizing: border-box;
+            }
+
+            .screen h1 {
+                font-size: 32px;
+                margin-bottom: 15px;
+                margin-top: 20px;
+            }
+
+            .screen p {
+                font-size: 16px;
+                margin: 8px 0;
+            }
+
+            .screen button {
+                padding: 12px 24px;
+                font-size: 16px;
+                margin-top: 15px;
+                margin-bottom: 20px;
+            }
+
+            .game-info {
+                max-width: 100%;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .controls-section, .difficulty-section {
+                margin: 15px 0;
+                padding: 15px;
+            }
+
+            .controls-section h2, .difficulty-section h2 {
+                font-size: 20px;
+                margin-bottom: 12px;
+            }
+
+            .controls-section ul {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .controls-section li {
+                font-size: 14px;
+                padding: 3px 0;
+            }
+
+            .difficulty-btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .difficulty-btn small {
+                font-size: 12px;
+            }
+
+            #game-ui {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            #fuel-container, #destination-container {
+                padding: 8px;
+                margin-bottom: 8px;
+            }
+
+            #game-tip {
+                bottom: 160px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                text-align: center;
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+
+            #mobile-controls {
+                display: flex;
+            }
+
+            .control-joystick {
+                width: 100px;
+                height: 100px;
+                margin: 0 15px;
+            }
+
+            .joystick-knob {
+                width: 35px;
+                height: 35px;
+            }
+
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .screen h1 {
+                font-size: 28px;
+            }
+
+            .controls-layout {
+                gap: 10px;
+            }
+
+            .control-joystick {
+                width: 80px;
+                height: 80px;
+                margin: 0 10px;
+            }
+
+            .joystick-knob {
+                width: 30px;
+                height: 30px;
+            }
+
+            .control-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 11px;
+            }
+
+            .controls-section, .difficulty-section {
+                padding: 12px;
+            }
+        }
+
+        /* Touch-friendly controls display */
+        @media (hover: none) and (pointer: coarse) {
+            #mobile-controls {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
@@ -245,13 +475,16 @@
         <div class="game-info">
             <div class="controls-section">
                 <h2>Controls</h2>
-                <ul>
+                <ul class="desktop-controls">
                     <li>WASD - Move</li>
                     <li>E - Move Up</li>
                     <li>Shift - Move Down</li>
                     <li>Q - Stabilize</li>
                     <li>Space - Boost</li>
                 </ul>
+                <div class="mobile-controls-info" style="display: none;">
+                    <p>Use the joystick to move and action buttons for up/down movement, boost, and stabilize.</p>
+                </div>
             </div>
             <div class="difficulty-section">
                 <h2>Select Difficulty</h2>
@@ -295,6 +528,26 @@
 
     <!-- Game Tips -->
     <div id="game-tip"></div>
+
+    <!-- Mobile Controls -->
+    <div id="mobile-controls">
+        <div class="controls-layout">
+            <!-- Movement Joystick -->
+            <div class="control-joystick" id="movement-joystick">
+                <div class="joystick-knob" id="movement-knob"></div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="control-buttons">
+                <div class="control-btn" id="up-btn">UP</div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="control-btn" id="boost-btn">⚡</div>
+                    <div class="control-btn" id="stabilize-btn">Q</div>
+                </div>
+                <div class="control-btn" id="down-btn">DN</div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Game configuration
@@ -340,6 +593,180 @@
             q: false
         };
 
+        // Mobile controls state
+        const mobileControls = {
+            joystick: {
+                active: false,
+                startX: 0,
+                startY: 0,
+                currentX: 0,
+                currentY: 0,
+                element: null,
+                knob: null
+            },
+            buttons: {
+                up: false,
+                down: false,
+                boost: false,
+                stabilize: false
+            }
+        };
+
+        // Touch event handlers for mobile controls
+        function initMobileControls() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                            (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+            
+            if (isMobile) {
+                // Show mobile controls info in start screen
+                const mobileInfo = document.querySelector('.mobile-controls-info');
+                const desktopControls = document.querySelector('.desktop-controls');
+                if (mobileInfo && desktopControls) {
+                    mobileInfo.style.display = 'block';
+                    desktopControls.style.display = 'none';
+                }
+                
+                // Show mobile controls during gameplay
+                const mobileControlsDiv = document.getElementById('mobile-controls');
+                if (mobileControlsDiv) {
+                    mobileControlsDiv.style.display = 'flex';
+                }
+            }
+
+            // Joystick setup
+            const joystick = document.getElementById('movement-joystick');
+            const knob = document.getElementById('movement-knob');
+            
+            if (!joystick || !knob) {
+                console.warn('Mobile controls elements not found');
+                return;
+            }
+            
+            mobileControls.joystick.element = joystick;
+            mobileControls.joystick.knob = knob;
+
+            // Joystick touch events
+            joystick.addEventListener('touchstart', handleJoystickStart, { passive: false });
+            joystick.addEventListener('touchmove', handleJoystickMove, { passive: false });
+            joystick.addEventListener('touchend', handleJoystickEnd, { passive: false });
+
+            // Button touch events
+            const buttons = {
+                'up-btn': () => { mobileControls.buttons.up = true; keys.e = true; },
+                'down-btn': () => { mobileControls.buttons.down = true; keys.shift = true; },
+                'boost-btn': () => { mobileControls.buttons.boost = true; keys.space = true; },
+                'stabilize-btn': () => { mobileControls.buttons.stabilize = true; keys.q = true; }
+            };
+
+            Object.keys(buttons).forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        buttons[id]();
+                    }, { passive: false });
+                    
+                    btn.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        // Reset all button states
+                        mobileControls.buttons.up = false;
+                        mobileControls.buttons.down = false;
+                        mobileControls.buttons.boost = false;
+                        mobileControls.buttons.stabilize = false;
+                        keys.e = false;
+                        keys.shift = false;
+                        keys.space = false;
+                        keys.q = false;
+                    }, { passive: false });
+                } else {
+                    console.warn(`Mobile control button ${id} not found`);
+                }
+            });
+        }
+
+        function handleJoystickStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = mobileControls.joystick.element.getBoundingClientRect();
+            
+            mobileControls.joystick.active = true;
+            mobileControls.joystick.startX = rect.left + rect.width / 2;
+            mobileControls.joystick.startY = rect.top + rect.height / 2;
+            mobileControls.joystick.currentX = touch.clientX;
+            mobileControls.joystick.currentY = touch.clientY;
+            
+            updateJoystickPosition();
+        }
+
+        function handleJoystickMove(e) {
+            if (!mobileControls.joystick.active) return;
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            mobileControls.joystick.currentX = touch.clientX;
+            mobileControls.joystick.currentY = touch.clientY;
+            
+            updateJoystickPosition();
+            updateMovementFromJoystick();
+        }
+
+        function handleJoystickEnd(e) {
+            e.preventDefault();
+            mobileControls.joystick.active = false;
+            
+            // Reset joystick position
+            mobileControls.joystick.knob.style.transform = 'translate(-50%, -50%)';
+            
+            // Reset movement keys
+            keys.w = false;
+            keys.a = false;
+            keys.s = false;
+            keys.d = false;
+        }
+
+        function updateJoystickPosition() {
+            const deltaX = mobileControls.joystick.currentX - mobileControls.joystick.startX;
+            const deltaY = mobileControls.joystick.currentY - mobileControls.joystick.startY;
+            
+            const maxDistance = 40; // Maximum distance knob can move from center
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            
+            let x = deltaX;
+            let y = deltaY;
+            
+            if (distance > maxDistance) {
+                const angle = Math.atan2(deltaY, deltaX);
+                x = Math.cos(angle) * maxDistance;
+                y = Math.sin(angle) * maxDistance;
+            }
+            
+            mobileControls.joystick.knob.style.transform = `translate(${x - 50}%, ${y - 50}%)`;
+        }
+
+        function updateMovementFromJoystick() {
+            const deltaX = mobileControls.joystick.currentX - mobileControls.joystick.startX;
+            const deltaY = mobileControls.joystick.currentY - mobileControls.joystick.startY;
+            
+            const threshold = 20; // Minimum distance to register movement
+            
+            // Reset all movement keys
+            keys.w = false;
+            keys.a = false;
+            keys.s = false;
+            keys.d = false;
+            
+            // Set movement keys based on joystick position
+            if (Math.abs(deltaX) > threshold) {
+                if (deltaX > 0) keys.d = true;  // Right
+                else keys.a = true;  // Left
+            }
+            
+            if (Math.abs(deltaY) > threshold) {
+                if (deltaY > 0) keys.s = true;  // Down/Back
+                else keys.w = true;  // Up/Forward
+            }
+        }
+
         // Three.js Variables
         const threeJS = {
             scene: null,
@@ -366,6 +793,9 @@
             document.getElementById('easy-btn').addEventListener('click', () => setDifficulty('easy'));
             document.getElementById('medium-btn').addEventListener('click', () => setDifficulty('medium'));
             document.getElementById('hard-btn').addEventListener('click', () => setDifficulty('hard'));
+            
+            // Initialize mobile controls
+            initMobileControls();
         }
 
         // Make functions globally accessible
