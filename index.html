@@ -674,15 +674,19 @@
       const buttonActions = {
         'up-btn': () => {
           keys.e = true;
+          console.log('✅ UP pressed');
         },
         'down-btn': () => {
           keys.shift = true;
+          console.log('✅ DOWN pressed');
         },
         'boost-btn': () => {
           keys.space = true;
+          console.log('✅ BOOST pressed');
         },
         'stabilize-btn': () => {
           keys.q = true;
+          console.log('✅ STABILIZE pressed');
         }
       };
 
@@ -691,20 +695,25 @@
         keys.shift = false;
         keys.space = false;
         keys.q = false;
+        console.log('🔄 All action keys reset');
       };
 
       buttonIds.forEach(id => {
         const btn = document.getElementById(id);
         if (btn) {
+          console.log(`🔧 Setting up ${id}...`);
 
           // Clear any existing event listeners
           btn.onclick = null;
           btn.onmousedown = null;
           btn.onmouseup = null;
+          btn.ontouchstart = null;
+          btn.ontouchend = null;
 
-          // Add simple mouse events
+          // Add mouse events (for desktop)
           btn.addEventListener('mousedown', (e) => {
             e.preventDefault();
+            console.log(`🖱️ ${id} mouse down`);
             buttonActions[id]();
             btn.style.transform = 'scale(0.9)';
             btn.style.background = 'red';
@@ -712,6 +721,7 @@
 
           btn.addEventListener('mouseup', (e) => {
             e.preventDefault();
+            console.log(`🖱️ ${id} mouse up`);
             resetKeys();
             btn.style.transform = 'scale(1)';
             btn.style.background = '';
@@ -722,17 +732,43 @@
             btn.style.transform = 'scale(1)';
             btn.style.background = '';
           });
+
+          // Add touch events (for mobile)
+          btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log(`📱 ${id} touch start`);
+            buttonActions[id]();
+            btn.style.transform = 'scale(0.9)';
+            btn.style.background = 'red';
+          }, { passive: false });
+
+          btn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log(`📱 ${id} touch end`);
+            resetKeys();
+            btn.style.transform = 'scale(1)';
+            btn.style.background = '';
+          }, { passive: false });
+
+          console.log(`✅ ${id} setup complete`);
+        } else {
+          console.error(`❌ Button ${id} not found!`);
         }
       });
 
       // Simple joystick setup
       const joystick = document.getElementById('movement-joystick');
       if (joystick) {
+        console.log('🔧 Setting up simple joystick...');
 
         let isDragging = false;
 
+        // Mouse events (for desktop)
         joystick.addEventListener('mousedown', (e) => {
           isDragging = true;
+          console.log('🕹️ Joystick mouse drag START');
           joystick.style.borderColor = 'red';
 
           const handleMouseMove = (e) => {
@@ -745,29 +781,12 @@
             const deltaX = e.clientX - centerX;
             const deltaY = e.clientY - centerY;
 
-            // Reset movement keys
-            keys.w = keys.a = keys.s = keys.d = false;
-
-            // Set keys based on movement
-            if (Math.abs(deltaX) > 20) {
-              if (deltaX > 0) {
-                keys.d = true;
-              } else {
-                keys.a = true;
-              }
-            }
-
-            if (Math.abs(deltaY) > 20) {
-              if (deltaY > 0) {
-                keys.s = true;
-              } else {
-                keys.w = true;
-              }
-            }
+            updateJoystickKeys(deltaX, deltaY);
           };
 
           const handleMouseUp = () => {
             isDragging = false;
+            console.log('🕹️ Joystick mouse drag END');
             joystick.style.borderColor = '';
             keys.w = keys.a = keys.s = keys.d = false;
             document.removeEventListener('mousemove', handleMouseMove);
@@ -778,6 +797,77 @@
           document.addEventListener('mouseup', handleMouseUp);
         });
 
+        // Touch events (for mobile)
+        joystick.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          isDragging = true;
+          console.log('🕹️ Joystick touch drag START');
+          joystick.style.borderColor = 'red';
+
+          const handleTouchMove = (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const touch = e.touches[0];
+            const rect = joystick.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const deltaX = touch.clientX - centerX;
+            const deltaY = touch.clientY - centerY;
+
+            updateJoystickKeys(deltaX, deltaY);
+          };
+
+          const handleTouchEnd = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            isDragging = false;
+            console.log('🕹️ Joystick touch drag END');
+            joystick.style.borderColor = '';
+            keys.w = keys.a = keys.s = keys.d = false;
+            document.removeEventListener('touchmove', handleTouchMove);
+            document.removeEventListener('touchend', handleTouchEnd);
+          };
+
+          document.addEventListener('touchmove', handleTouchMove, { passive: false });
+          document.addEventListener('touchend', handleTouchEnd, { passive: false });
+        }, { passive: false });
+
+        console.log('✅ Simple joystick setup complete');
+      } else {
+        console.error('❌ Joystick not found!');
+      }
+
+      console.log('✅ Simple mobile controls setup complete!');
+    }
+
+    // Helper function for joystick key updates
+    function updateJoystickKeys(deltaX, deltaY) {
+      // Reset movement keys
+      keys.w = keys.a = keys.s = keys.d = false;
+
+      // Set keys based on movement (threshold of 20px)
+      if (Math.abs(deltaX) > 20) {
+        if (deltaX > 0) {
+          keys.d = true;
+          console.log('🕹️ RIGHT');
+        } else {
+          keys.a = true;
+          console.log('🕹️ LEFT');
+        }
+      }
+
+      if (Math.abs(deltaY) > 20) {
+        if (deltaY > 0) {
+          keys.s = true;
+          console.log('🕹️ BACK');
+        } else {
+          keys.w = true;
+          console.log('🕹️ FORWARD');
+        }
       }
     }
 
@@ -1104,8 +1194,8 @@
       document.getElementById('medium-btn').addEventListener('click', () => setDifficulty('medium'));
       document.getElementById('hard-btn').addEventListener('click', () => setDifficulty('hard'));
 
-      // Initialize mobile controls
-      initMobileControls();
+      // Don't initialize the complex mobile controls anymore - we'll use simple ones
+      // initMobileControls();
     }
 
     // Make functions globally accessible
